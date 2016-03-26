@@ -5,6 +5,4 @@ package com.efan.basecmlib.activity;
  */
 public interface IActivity {
     void initialize();
-
-    void setRootView();
 }

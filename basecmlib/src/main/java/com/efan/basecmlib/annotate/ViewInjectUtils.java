@@ -1,6 +1,7 @@
 package com.efan.basecmlib.annotate;
 
 import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
 import java.lang.annotation.Annotation;
@@ -13,19 +14,16 @@ import java.lang.reflect.Proxy;
  */
 public class ViewInjectUtils {
 
-    private static void injectViews(Activity activity){
-        Class<? extends Activity> activityClass =  activity.getClass();
-        Field[] fields = activityClass.getDeclaredFields();
+    private static void injectViews(Object object, View sourceView){
+        Field[] fields = object.getClass().getDeclaredFields();
         for (Field field : fields){
             ViewInject viewInject = field.getAnnotation(ViewInject.class);
             if(viewInject != null){
                 int viewId = viewInject.id();
                 if(viewId != -1){
                     try {
-                        Method method = activityClass.getMethod("findViewById", int.class);
-                        Object obj = method.invoke(activity, viewId);
                         field.setAccessible(true);
-                        field.set(activity, obj);
+                        field.set(object, sourceView.findViewById(viewId));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -41,17 +39,16 @@ public class ViewInjectUtils {
             int layoutId = contentView.id();
             try {
                 Method method = activityClass.getMethod("setContentView", int.class);
-                Object obj = method.invoke(activity, layoutId);
-                method.setAccessible(true);
+                method.invoke(activity, layoutId);
+               // method.setAccessible(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static void inJectClickEvent(Activity activity){
-        Class<? extends Activity> activityClass =  activity.getClass();
-        Method[] methods = activityClass.getDeclaredMethods();
+    private static void inJectClickEvent(Object object, View sourceView){
+        Method[] methods = object.getClass().getDeclaredMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getAnnotations();
             for (Annotation annotation : annotations){
@@ -64,17 +61,15 @@ public class ViewInjectUtils {
                     try {
                         Method clickMethod = annotationType.getDeclaredMethod("value");
                         int[] value = (int[]) clickMethod.invoke(annotation, null);
-                        DynamicHandler handler = new DynamicHandler(activity);
+                        DynamicHandler handler = new DynamicHandler(object);
                         handler.addMethod(methodName, method);
                         Object listener = Proxy.newProxyInstance(
                                 listenerType.getClassLoader(),
                                 new Class<?>[] { listenerType }, handler);
                         for (int viewId : value)
                         {
-                            View view = activity.findViewById(viewId);
-                            Method setEventListenerMethod = view.getClass()
-                                    .getMethod(listenerSetter, listenerType);
-                            setEventListenerMethod.invoke(view, listener);
+                            sourceView.findViewById(viewId)
+                                    .setOnClickListener((View.OnClickListener) object);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -86,7 +81,12 @@ public class ViewInjectUtils {
 
     public static void inJect(Activity activity){
         inJectContentView(activity);
-        injectViews(activity);
-        inJectClickEvent(activity);
+        injectViews(activity, activity.getWindow().getDecorView());
+        inJectClickEvent(activity, activity.getWindow().getDecorView());
+    }
+
+    public static void inJect(Fragment frag,View sourceView) {
+        injectViews(frag, sourceView);
+        inJectClickEvent(frag, sourceView);
     }
 }

@@ -5,27 +5,24 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import com.efan.basecmlib.annotate.ViewInjectUtils;
-import com.efan.basecmlib.application.BaseApplication;
+import com.efan.basecmlib.event.NetStateChangeEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Created by efan on 2016/2/26.
  */
 public abstract class BaseFragmentActivity extends FragmentActivity implements View.OnClickListener, IActivity, BaseUITask {
 
-    protected BaseApplication mApplication;
-
     public BaseFragmentActivity() {
     }
 
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
-        this.mApplication = (BaseApplication)this.getApplication();
-        EventBus.getDefault().register(this);
-        this.setRootView();
-        ViewInjectUtils.inJect(this);
+        ViewInjectUtils.inJect(BaseFragmentActivity.this);
         this.initialize();
+        EventBus.getDefault().register(this);
     }
 
     public void initialize() {
@@ -37,5 +34,9 @@ public abstract class BaseFragmentActivity extends FragmentActivity implements V
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe
+    public void onEventMainThread(NetStateChangeEvent event) {
     }
 }

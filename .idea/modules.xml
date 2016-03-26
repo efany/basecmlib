@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/BaseCmLib-Sample.iml" filepath="$PROJECT_DIR$/BaseCmLib-Sample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/basecmlib/basecmlib.iml" filepath="$PROJECT_DIR$/basecmlib/basecmlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/daogenerator/daogenerator.iml" filepath="$PROJECT_DIR$/daogenerator/daogenerator.iml" />
     </modules>
   </component>
 </project>

@@ -1,1 +1,1 @@
-include ':app', ':basecmlib'
+include ':app', ':basecmlib', ':daogenerator'
